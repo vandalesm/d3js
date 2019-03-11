@@ -17,6 +17,7 @@ class App extends Component {
     this.state = {
       dataHeader: [],
       dataDetail: [],
+      testData: [],
       randomNetData: exData.getSampleNodes(150),
       activeComp: 'BubbleChart',
       components: [
@@ -26,26 +27,33 @@ class App extends Component {
         { name: 'D3Practice01' },
         { name: 'D3Practice02' },
         { name: 'MotionPractice01' }
-      ]
+      ],
+      bubbleChartViewMode: 'GROUP'
     }
   }
   componentDidMount() {
     this.setState({
-      dataHeader: this.generateRandomData(5, 30),
-      dataDetail: this.generateRandomData(10, 100),
+      dataHeader: this.generateRandomData(5, 30, 1),
+      dataDetail: this.generateRandomData(10, 100, 1),
+      testData: this.generateRandomData(50, 10000, 9),
       randomNetData: exData.getSampleNodes(150),
     })
   }
   generateBarChartData() {
-    console.log('generate')
     this.setState({
-      dataHeader: this.generateRandomData(5, 30),
-      dataDetail: this.generateRandomData(10, 100),
+      dataHeader: this.generateRandomData(5, 30, 1),
+      dataDetail: this.generateRandomData(10, 100, 1),
+      testData: this.generateRandomData(50, 10000, 9),
     })
   }
-  generateRandomData(numberOfItems, limit) {
+  generateRandomData(numberOfItems, limit, numberOfGroup) {
     var arr = Array(numberOfItems).fill({ name: 'x', value: 1 })
-    return arr.map((v, idx) => { return { name: 'x' + idx, value: Math.round(Math.random() * limit) + 1 } })
+    return arr.map((v, idx) => { return { 
+      id: Math.floor(Math.random() * 10000000),
+      name: 'x' + idx, 
+      value: Math.round(Math.random() * limit) + 1, 
+      group: 'group#' + (Math.round(Math.random() * (numberOfGroup-1)))
+    } })
   }
   handleOnBarClick(item) {
     this.setState({ dataDetail: this.generateRandomData(item.value, 100) })
@@ -85,11 +93,19 @@ class App extends Component {
               </Block>
             </Block>
           }
-          {this.state.activeComp === 'BubbleChart' && 
-            <Block justifyContentCenter style={{border: '4px solid #404040', width: '100%', height: '600px'}}>
-              <BubbleChart />
+          {this.state.activeComp === 'BubbleChart' &&
+            <Block column fullFlex>
+              <Block>
+                <Button onClick={this.generateBarChartData.bind(this)}>Generate Random Data</Button>
+                <Button onClick={()=>this.setState({bubbleChartViewMode: 'GROUP'})}>GROUP</Button>
+                <Button onClick={()=>this.setState({bubbleChartViewMode: 'SPLIT'})}>SPLIT</Button>
+                <Button onClick={()=>this.setState({bubbleChartViewMode: 'SCATTER'})}>SCATTER</Button>
+              </Block>
+              <Block justifyContentCenter style={{height: '600px'}}>
+                <BubbleChart data={this.state.testData} viewMode={this.state.bubbleChartViewMode} splitColumnCount={3} />
+              </Block>
             </Block>
-            }
+          }
           {this.state.activeComp === 'D3Practice01' && <D3Practice01 />}
           {this.state.activeComp === 'D3Practice02' && <D3Practice02 />}
           {this.state.activeComp === 'MotionPractice01' && <MotionPractice01 />}
